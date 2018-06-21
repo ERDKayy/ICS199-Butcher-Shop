@@ -1,0 +1,10 @@
+SELECT prod_name, prod_weight, prod_price, prod_description, prod_image, cat_name
+FROM ICS199db.tblProducts
+JOIN ICS199db.tblCategory
+ON tblCategory_cat_id = cat_id;
+
+SELECT prod_name, prod_weight, prod_price, prod_description, prod_image, cat_name
+FROM ICS199db.tblProducts
+JOIN ICS199db.tblCategory
+ON tblCategory_cat_id = cat_id
+WHERE :category = cat_id;

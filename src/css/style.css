@@ -1,0 +1,242 @@
+/* Header */
+
+header {
+	position: fixed;
+	background-color: #4CAF50;
+	width: 100%;
+	padding-top: 1px;
+	margin-top: -100px;
+	margin-left: -0.5em;
+    z-index: 2; /* This should always be in the front */
+}
+
+header a {
+	text-decoration: none;
+	color: inherit;
+}
+
+/* Title */
+
+.title {
+	float: left;
+	top: 5px;
+	background-color: #4CAF50;
+	color: white;
+	font-size: 27px;
+	border: none;
+	font-family: Tahoma;
+}
+
+.title p {
+    display: block;
+    float: right;
+}
+
+.search {
+    float: right;
+    padding-top: 25px;
+    padding-right: 10px;
+}
+
+.shopping_cart {
+	float: right;
+	display: inline-block;
+	top: 5px;
+	left: 95%;
+	background-color: #4CAF50;
+	color: white;
+	padding: 10px;
+	font-size: 16px;
+	border: none;
+	cursor: pointer;
+	font-family: Tahoma;
+	text-decoration: none;
+}
+
+/* Dropdown Button */
+.dropbtn {
+	background-color: #51cc56;
+	color: white;
+	padding: 27px;
+	font-size: 16px;
+	border: none;
+	cursor: pointer;
+	font-family: Tahoma;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+	float: right;
+	display: inline-block;
+	top: 10px;
+	left: 90%;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+	display: none;
+	position: absolute;
+	background-color: #f9f9f9;
+	min-width: 160px;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	z-index: 1;
+	font-family: Tahoma;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+	color: black;
+	padding: 12px 16px;
+	text-decoration: none;
+	display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+	display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+	background-color: #3e8e41;
+}
+
+/* main body text box */
+.description {
+	background-color: white;
+	display: block;
+	margin: 0 auto;
+	margin-top: 100px;
+	text-align: center;
+	color: #4CAF50;
+	padding: 16px;
+	font-size: 16px;
+	border: none;
+	font-family: Tahoma;
+	width: 75%;
+}
+
+#mainTable {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	margin: 45px;
+	width: 75%;
+	text-align: center;
+	border-collapse: collapse;
+	margin: 0 auto;
+
+}
+
+#mainTable th {
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+	background: #f9f9f9;
+	border-top: 4px solid #4CAF50;
+	border-bottom: 1px solid #fff;
+	color: black;
+	margin: 0 auto;
+	text-align: center;
+}
+
+#mainTable td {
+	padding: 8px;
+	background: #f9f9f9;
+	border-bottom: 1px solid #fff;
+	color: black;
+	border-top: 1px solid transparent;
+	margin: 0 auto;
+	text-align: center;
+}
+
+#mainTable tr:hover td {
+	background: #4CAF50;
+	color: black;
+	margin: 0 auto;
+	text-align: center;
+}
+
+#navigation {
+    margin-top: 1em;
+}
+
+/* footer link box */
+
+footer {
+	text-decoration: none;
+	background-color: #4CAF50;
+	color: white;
+	width: 100%;
+	padding: 1em;
+	margin-left: -1em;
+	font-size: 16px;
+	border: none;
+	font-family: Tahoma;
+	text-align: center;
+}
+
+footer a {
+	text-decoration: none;
+	color: inherit;
+    padding: 1em;
+}
+
+footer a img {
+    width: 2em;
+    height: 2em;
+    vertical-align: middle;
+}
+
+table {
+	border: 1px;
+}
+
+#hide{
+	display:none;
+}
+
+#clearCart{
+background-color: black;
+    color: white;
+    display: block;
+    height: 40px;
+    line-height: 40px;
+    text-decoration: none;
+    width: 100px;
+    text-align: center;
+    position: relative;
+}
+
+#productCount {
+    height: 2em;
+    width: 2em;
+    display: table-cell;
+    border-radius: 50%;
+    background-color: red;
+    text-align: center;
+    vertical-align: middle;
+    position: absolute;
+    bottom: 1em;
+    right: 0;
+}
+
+#count1 {
+    position: absolute;
+    right: 0.75em;
+    bottom: -0.5em;
+}
+
+#count10 {
+    position: absolute;
+    right: 0.5em;
+    bottom: -0.5em;
+}
+
+#count100 {
+    position: absolute;
+    right: 0.25em;
+    bottom: -0.5em;
+}

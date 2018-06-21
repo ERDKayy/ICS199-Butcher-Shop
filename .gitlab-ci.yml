@@ -1,0 +1,126 @@
+#
+# ICS 199 Gitlab CI FILE
+# ----------------------
+#
+# DON'T MESS WITH THIS SCRIPT!
+#
+# Purpose: This activates the GitLab CI Pipeline.
+# 
+# Test Stage: it creates a container from a test image
+# and runs static and dynamic tests on the project code.
+#
+# Deploy Stage: if pushing to the master branch, it will
+# deploy the code to the deploy server running Dokku.
+# ***** THIS REQUIRES SSH ACCESS TO DOKKU *****
+#
+# ********* REQUIREMENTS FOR USING THIS ***************
+# IN YOUR CI/CD SETTINGS, YOU NEED FOUR SECRET VARIABLES SET UP:
+# 1) SSH_PRIVATE_KEY
+# 2) SSH_SERVER_HOSTKEYS (optional)
+# 3) DBNAME
+# 4) DBPASS (only if unit-testing)
+# The first two I will setup. The last two you need to do and set
+# to the name of your database and password.
+# *****************************************************
+image: gitlab.camosun.bc.ca:2020/ics199/ics199-testing-image:latest
+
+variables:
+  # hostname of the DOKKU deployment server
+  DEPLOY_SRV: ics199.site
+
+before_script:
+  # Install ssh-agent if not already installed, it is required by Docker.
+  # (change apt-get to yum if you use a CentOS-based image)
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+
+  # Run ssh-agent (inside the build environment)
+  - eval $(ssh-agent -s)
+
+  # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+  
+  # For Docker builds disable host key checking. Be aware that by adding that
+  # you are suspectible to man-in-the-middle attacks.
+  # WARNING: Use this only with the Docker executor, if you use it with shell
+  # you will overwrite your user's SSH config.
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+  # In order to properly check the server's host key, assuming you created the
+  # SSH_SERVER_HOSTKEYS variable previously, uncomment the following two lines
+  # instead.
+  #- mkdir -p ~/.ssh
+  #- '[[ -f /.dockerenv ]] && echo "$SSH_SERVER_HOSTKEYS" > ~/.ssh/known_hosts'
+
+stages:
+  - test
+  - deploy-db
+  - deploy-app
+  
+static_tests:
+  stage: test
+  cache:
+    untracked: true
+  script:
+    # put vendor/ folder in project directory
+    - cp -R /home/ics199/vendor $CI_PROJECT_DIR
+    # --- Static Analysis ---
+    # Run PHP CodeSniffer
+    - vendor/bin/phpcs -n -s --standard=PSR1 --ignore=view,vendor src
+    # Run PHP Mess Detector
+    - vendor/bin/phpmd src text codesize,design,naming,unusedcode --exclude css,view,vendor,email.php
+
+# dynamic_tests:    
+  # stage: test
+  # services:
+    # - mysql:5.7.12
+  # variables:
+    # MYSQL_DATABASE: $DBNAME
+    # MYSQL_ROOT_PASSWORD: $DBPASS
+  # cache:
+    # untracked: true
+  # script:
+    # # Create the mysql dump
+    # - cat db/a-schema.sql db/b-populate.sql > dump.sql
+    # # Setup the DB in the mysql container
+    # - mysql --user=root --password=$DBPASS --host=mysql $DBNAME < dump.sql
+    # # --- Dynamic Analysis ---
+    # # Run unit tests; report coverage -> You only need this if you are using classes
+    # - vendor/bin/phpunit --coverage-text --colors=never --whitelist src --bootstrap vendor/autoload.php --testdox tests
+
+deploy_db_to_dokku:
+  stage: deploy-db
+  tags:
+    # this ensures the Camosun Runner will be used for deployment
+    - deploy
+  script:
+    # Create the mysql dump
+    - cat db/a-schema.sql db/b-populate.sql > dump.sql
+    # Unlink Service
+    - 'ssh dokku@$DEPLOY_SRV mysql:unlink $DBNAME $CI_PROJECT_NAME || true'
+    # Destroy DB first otherwise next command will fail the build if alrady created
+    - 'ssh dokku@$DEPLOY_SRV -- --force mysql:destroy $DBNAME || true'
+    # Ensure DB is created
+    - ssh dokku@$DEPLOY_SRV mysql:create $DBNAME
+    # Import dump
+    - ssh dokku@$DEPLOY_SRV mysql:import $DBNAME < dump.sql
+  # this is necessary so it doesn't fail on first deploy
+  allow_failure: true
+  only:
+    - master
+    
+deploy_app_to_dokku:
+  stage: deploy-app
+  tags:
+    # this ensures the Camosun Runner will be used for deployment
+    - deploy
+  script:
+    # push the app to the deploy server; create the container
+    - git push dokku@${DEPLOY_SRV}:$CI_PROJECT_NAME master
+    # link to DB container
+    - ssh dokku@$DEPLOY_SRV mysql:link $DBNAME $CI_PROJECT_NAME
+  environment:
+    name: production
+    url: http://${CI_PROJECT_NAME}.$DEPLOY_SRV
+  only:
+    - master

@@ -1,0 +1,32 @@
+version: "3"
+services:
+  web:
+    container_name: dev-srv
+    build: ./web
+    image: ics199/dev-srv
+    ports:
+      # Publish the port so it's visible on the host at 8080.
+      # access server in browser on host by going to localhost:8080.
+      - "8080:80"
+    links:
+      - db
+    volumes:
+      # Mount the src dir so changes to the code are reflected in the container.
+      - ./src:/var/www/html
+  db:
+    # use mysql version 5.7.12 to match Dokku version
+    image: mysql:5.7.12 
+    container_name: mysql
+    ports:
+      # Publish the port so it's visible on the host, you can access the db directly.
+      - "3306:3306"
+    environment:
+      # Environment variables to configure MySQL on startup.
+      # for our local development environment.
+      # MYSQL_RP nd MYSQL_DB are stored in the .env file
+      - MYSQL_ROOT_PASSWORD=$MYSQL_RP
+      - MYSQL_DATABASE=$MYSQL_DB
+    volumes:
+      # This will cause the sql scripts in the db folder to be executed
+      # to build and populate the database. Name them a-schema.sql and b-populate.sql.
+      - ./db:/docker-entrypoint-initdb.d
